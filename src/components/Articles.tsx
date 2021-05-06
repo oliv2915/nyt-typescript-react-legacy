@@ -1,5 +1,6 @@
 import React, {ChangeEvent, Component, FormEvent} from "react";
 import {IArticle} from "../interfaces/interfaces";
+import NYTLogo from "../assets/nytimes-icon.svg"
 import Article from "./Article";
 
 interface IState {
@@ -22,22 +23,32 @@ export default class Articles extends Component<{}, IState> {
         })
     }
 
-    setSearchTerm = (event: ChangeEvent<HTMLInputElement>) => {
-        this.setState(
-            {searchTerm: event.target.value}
-        )
-    }
-
-    setStartDate = (event: ChangeEvent<HTMLInputElement>) => {
-        this.setState(
-            {startDate: event.target.value}
-        )
-    }
-
-    setEndDate = (event: ChangeEvent<HTMLInputElement>) => {
-        this.setState(
-            {endDate: event.target.value}
-        )
+    handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        switch (event.target.name) {
+            case "searchTerm":
+                this.setState(
+                    {searchTerm: event.target.value}
+                )
+                break;
+            case "startDate":
+                if (this.state.startDate !== "") {
+                    this.setState(
+                        {startDate: event.target.value}
+                    )
+                }
+                break;
+            case "endDate":
+                if (this.state.endDate !== "") {
+                    this.setState(
+                        {endDate: event.target.value}
+                    )
+                }
+                break;
+        
+            default:
+                return;
+                break;
+        }
     }
 
     handleSubmit = (event: FormEvent) => {
@@ -64,7 +75,7 @@ export default class Articles extends Component<{}, IState> {
                     const article = {
                         webURL: document.web_url,
                         headline: document.headline.main,
-                        imgURL: `http://www.nytimes.com/${document.multimedia[0].url}`,
+                        imgSrc: document.multimedia.length > 0 ? `http://www.nytimes.com/${document.multimedia[0].url}` : NYTLogo,
                         keywords: document.keywords.map((keyword: any) => keyword.value)
                     };
                     return article;
@@ -73,6 +84,7 @@ export default class Articles extends Component<{}, IState> {
                     {articles: articles}
                 )
             })
+            .catch(console.log)
     }
     
     nextTen = () => {
@@ -92,22 +104,21 @@ export default class Articles extends Component<{}, IState> {
     }
 
     render() {
-        // console.log(this.state.articles.length < 10)
         return (
             <>
                 <div className="controls">
                     <form onSubmit={this.handleSubmit}>
                         <p>
                             <label htmlFor="search">Enter a SINGLE search term (required)</label>
-                            <input type="text" id="search" className="search" required onChange={this.setSearchTerm}/>
+                            <input type="text" name="searchTerm" id="search" className="search" required onChange={this.handleInputChange}/>
                         </p>
                         <p>
                             <label htmlFor="start-date">Enter a start date (format: YYYYMMDD)</label>
-                            <input type="date" id="start-date" className="start-date" pattern="[0-9]{8}" onChange={this.setStartDate}/>
+                            <input type="date" name="startDate" id="start-date" className="start-date" pattern="[0-9]{8}" onChange={this.handleInputChange}/>
                         </p>
                         <p>
                             <label htmlFor="end-date">Enter an end date (format: YYYYMMDD)</label>
-                            <input type="date" id="end-date" className="end-date" pattern="[0-9]{8}" onChange={this.setEndDate}/>
+                            <input type="date" name="endDate" id="end-date" className="end-date" pattern="[0-9]{8}" onChange={this.handleInputChange}/>
                         </p>
                         <p>
                             <button type="submit" className="submit">Submit Search</button>
@@ -122,7 +133,7 @@ export default class Articles extends Component<{}, IState> {
                     </nav>
                     <section>
                         {this.state.articles.map((article, idx) => {
-                            return <Article key={idx} webURL={article.webURL} headline={article.headline} imgURL={article.imgURL} keywords={article.keywords}/>
+                            return <Article key={idx} webURL={article.webURL} headline={article.headline} imgSrc={article.imgSrc} keywords={article.keywords}/>
                         })}
                     </section>
                 </div>

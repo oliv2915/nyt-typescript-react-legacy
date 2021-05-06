@@ -5,6 +5,6 @@ export interface IArticles {
 export interface IArticle {
     webURL: string;
     headline: string;
-    imgURL: string;
+    imgSrc: string;
     keywords: string[];
 }
